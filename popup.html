@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>PAGASA MINPRSD</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg:       #0b1220;
+  --surface:  #0e1a2e;
+  --card:     #101e32;
+  --card2:    #0d1828;
+  --border:   #1c2e48;
+  --border2:  #162440;
+  --accent:   #2980b9;
+  --blue:     #3498db;
+  --ok:       #27ae60;
+  --ok2:      #2ecc71;
+  --danger:   #c0392b;
+  --danger2:  #e74c3c;
+  --warn:     #d35400;
+  --warn2:    #e67e22;
+  --text:     #dce8f5;
+  --muted:    #4a6a8a;
+  --label:    #6a8aaa;
+  --font:     'Inter', 'Segoe UI', sans-serif;
+}
+
+html{ height:100%; }
+body{
+  width:380px; height:100vh; max-height:100vh;
+  background:var(--bg); color:var(--text);
+  font-family:var(--font); font-size:13px;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+
+/* ══ HEADER ═══════════════════════════════════════════════ */
+.hdr{
+  flex-shrink:0;
+  background:linear-gradient(180deg,#0a1525 0%,#091220 100%);
+  border-bottom:2px solid var(--accent);
+  padding:12px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.hdr-left{ display:flex; align-items:center; gap:10px; }
+.hdr-icon{
+  width:36px; height:36px; border-radius:8px;
+  background:linear-gradient(135deg,#1a3a5c,#2980b9);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+  box-shadow:0 2px 10px rgba(41,128,185,.3);
+}
+.hdr-titles{ display:flex; flex-direction:column; gap:2px; }
+.hdr-name{
+  font-size:15px; font-weight:800; color:#fff;
+  letter-spacing:.5px;
+}
+.hdr-sub{ font-size:10px; color:var(--muted); letter-spacing:.3px; }
+.hdr-clock{
+  text-align:right;
+  font-size:10px; color:var(--muted);
+}
+#liveClock{
+  display:block; font-size:18px; font-weight:700;
+  color:var(--blue); line-height:1; letter-spacing:1px;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ══ CITY BANNER ══════════════════════════════════════════ */
+#cityBanner{
+  flex-shrink:0;
+  display:flex; align-items:center; gap:8px;
+  padding:8px 16px;
+  font-size:11px; font-weight:700; letter-spacing:.5px;
+  border-bottom:1px solid var(--border);
+  transition:all .3s;
+}
+#cityBanner.bn-ok{
+  background:rgba(39,174,96,.08);
+  color:var(--ok2); border-color:rgba(39,174,96,.2);
+}
+#cityBanner.bn-danger{
+  background:rgba(192,57,43,.1);
+  color:var(--danger2); border-color:rgba(192,57,43,.35);
+}
+#cityBanner.bn-warn{
+  background:rgba(211,84,0,.07);
+  color:var(--warn2); border-color:rgba(211,84,0,.25);
+}
+#cityBanner.bn-idle{
+  background:var(--surface); color:var(--muted);
+}
+.bn-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:currentColor; flex-shrink:0;
+}
+#cityBanner.bn-danger .bn-dot{ animation:bnpulse 1s infinite; }
+@keyframes bnpulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.4;transform:scale(1.5)}
+}
+
+/* ══ ISSUED ROW ═══════════════════════════════════════════ */
+#issuedRow{
+  flex-shrink:0;
+  padding:5px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  font-size:10px; color:var(--muted);
+  display:flex; justify-content:space-between; align-items:center;
+}
+#issuedRow span{ color:var(--label); }
+
+/* ══ MAIN 3-COLUMN CARDS ══════════════════════════════════ */
+.advisory-grid{
+  flex-shrink:0;
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  border-bottom:2px solid var(--border);
+}
+.adv-col{
+  padding:16px 10px 14px;
+  display:flex; flex-direction:column;
+  align-items:center; gap:9px;
+  border-right:1px solid var(--border);
+  background:var(--card);
+  transition:background .3s;
+  position:relative;
+}
+.adv-col:last-child{ border-right:none; }
+.adv-col.col-danger{
+  background:rgba(192,57,43,.07);
+}
+.adv-col.col-warn{
+  background:rgba(211,84,0,.05);
+}
+
+/* Active glow strip at top */
+.adv-col::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  border-radius:0; transition:background .3s;
+}
+.adv-col.col-danger::before{ background:var(--danger2); }
+.adv-col.col-warn::before{ background:var(--warn2); }
+
+.adv-label{
+  font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1.5px;
+  color:var(--label);
+}
+.adv-icon{ font-size:34px; line-height:1; }
+
+.adv-status{
+  display:flex; align-items:center; gap:5px;
+  font-size:12px; font-weight:700;
+  padding:4px 10px; border-radius:20px;
+  white-space:nowrap;
+}
+.as-ok{
+  color:var(--ok2);
+  background:rgba(46,204,113,.08);
+  border:1px solid rgba(46,204,113,.2);
+}
+.as-danger{
+  color:var(--danger2);
+  background:rgba(231,76,60,.1);
+  border:1px solid rgba(231,76,60,.3);
+}
+.as-warn{
+  color:var(--warn2);
+  background:rgba(230,126,34,.08);
+  border:1px solid rgba(230,126,34,.25);
+}
+.as-icon{ font-size:13px; }
+
+.adv-no{
+  font-size:10px; font-weight:600; color:var(--muted);
+  background:var(--card2); padding:2px 8px;
+  border-radius:10px; border:1px solid var(--border);
+  min-height:18px; text-align:center;
+}
+.adv-time{
+  font-size:9px; color:var(--muted); text-align:center;
+  line-height:1.3;
+}
+
+/* ══ DETAIL SECTION ═══════════════════════════════════════ */
+.detail-section{
+  flex:1; min-height:0;
+  overflow-y:auto; overflow-x:hidden;
+  padding:12px 14px;
+  display:flex; flex-direction:column; gap:10px;
+  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+.detail-section::-webkit-scrollbar{ width:5px; }
+.detail-section::-webkit-scrollbar-thumb{
+  background:var(--border); border-radius:3px;
+}
+.detail-section::-webkit-scrollbar-track{ background:transparent; }
+
+.detail-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px; overflow:hidden;
+}
+.detail-card.dc-active{
+  border-color:rgba(231,76,60,.35);
+  box-shadow:0 2px 12px rgba(192,57,43,.08);
+}
+.detail-card.dc-warn{
+  border-color:rgba(230,126,34,.3);
+}
+.dc-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:9px 13px;
+  background:rgba(255,255,255,.02);
+  border-bottom:1px solid var(--border);
+}
+.dc-name{
+  font-size:12px; font-weight:700;
+  display:flex; align-items:center; gap:6px;
+  text-transform:uppercase; letter-spacing:.5px;
+}
+.dc-badge{
+  font-size:9px; font-weight:700;
+  padding:2px 8px; border-radius:3px;
+  letter-spacing:1px; text-transform:uppercase;
+}
+.dcb-none{    color:var(--muted); border:1px solid var(--border); }
+.dcb-active{  color:var(--danger2); border:1px solid rgba(231,76,60,.35); background:rgba(192,57,43,.08); }
+.dcb-warn{    color:var(--warn2);   border:1px solid rgba(230,126,34,.3);  background:rgba(211,84,0,.07); }
+
+.dc-body{ padding:10px 13px; }
+.dc-empty{ font-size:11px; color:var(--muted); }
+.dc-rows{ display:flex; flex-direction:column; gap:6px; }
+.dc-row{ display:flex; gap:8px; align-items:flex-start; }
+.dc-key{
+  font-size:9px; font-weight:700; color:var(--muted);
+  text-transform:uppercase; letter-spacing:1px;
+  min-width:65px; flex-shrink:0; padding-top:2px;
+}
+.dc-val{
+  font-size:12px; font-weight:600; color:var(--text);
+  line-height:1.4;
+}
+.dc-val.v-big{ font-size:14px; color:#fff; }
+.dc-city-tag{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:10px; font-weight:700;
+  padding:4px 10px; border-radius:4px;
+  margin-top:2px;
+}
+.ct-yes{ color:var(--danger2); background:rgba(192,57,43,.08); border:1px solid rgba(231,76,60,.25); }
+.ct-no { color:var(--muted);   background:var(--surface);       border:1px solid var(--border); }
+
+/* ══ FOOTER ═══════════════════════════════════════════════ */
+.footer{
+  flex-shrink:0;
+  padding:10px 14px;
+  border-top:1px solid var(--border);
+  background:var(--surface);
+  display:flex; gap:8px;
+}
+.btn-primary{
+  flex:1; padding:9px;
+  background:linear-gradient(135deg,#1a4a7a,#2980b9);
+  color:#fff; border:none; border-radius:6px;
+  cursor:pointer; font-family:var(--font);
+  font-weight:700; font-size:12px; letter-spacing:.5px;
+  transition:filter .2s;
+}
+.btn-primary:hover{ filter:brightness(1.15); }
+.btn-ghost{
+  padding:9px 14px;
+  background:transparent; color:var(--muted);
+  border:1px solid var(--border); border-radius:6px;
+  cursor:pointer; font-family:var(--font); font-size:11px;
+  transition:color .2s, border-color .2s;
+}
+.btn-ghost:hover{ color:var(--text); border-color:var(--label); }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-icon">🌩️</div>
+    <div class="hdr-titles">
+      <div class="hdr-name">PAGASA MINPRSD</div>
+      <div class="hdr-sub">Mindanao Regional Advisory Monitor</div>
+    </div>
+  </div>
+  <div class="hdr-clock">
+    <span id="liveClock">--:--:--</span>
+    PHT
+  </div>
+</header>
+
+<div id="cityBanner" class="bn-idle">
+  <span class="bn-dot"></span>
+  <span id="cityBannerText">Misamis Oriental / El Salvador City</span>
+</div>
+
+<div id="issuedRow">
+  <span>Last update</span>
+  <span id="issuedVal">—</span>
+</div>
+
+<div class="advisory-grid">
+
+  <div class="adv-col" id="col-rain">
+    <div class="adv-label">Rainfall</div>
+    <div class="adv-icon">🌧</div>
+    <div class="adv-status as-ok" id="stat-rain">
+      <span class="as-icon">✅</span> No Warning
+    </div>
+    <div class="adv-no" id="advno-rain">&nbsp;</div>
+  </div>
+
+  <div class="adv-col" id="col-thunder">
+    <div class="adv-label">Thunderstorm</div>
+    <div class="adv-icon">⛈</div>
+    <div class="adv-status as-ok" id="stat-thunder">
+      <span class="as-icon">✅</span> No Warning
+    </div>
+    <div class="adv-no" id="advno-thunder">&nbsp;</div>
+  </div>
+
+  <div class="adv-col" id="col-special">
+    <div class="adv-label">Special</div>
+    <div class="adv-icon">📋</div>
+    <div class="adv-status as-ok" id="stat-special">
+      <span class="as-icon">✅</span> None
+    </div>
+    <div class="adv-no" id="advno-special">&nbsp;</div>
+  </div>
+
+</div>
+
+<div class="detail-section">
+
+  <div class="detail-card" id="dcard-rain">
+    <div class="dc-head">
+      <span class="dc-name">🌧 Rainfall Warning</span>
+      <span class="dc-badge dcb-none" id="dbadge-rain">NONE</span>
+    </div>
+    <div class="dc-body" id="dbody-rain">
+      <div class="dc-empty">No active rainfall warning.</div>
+    </div>
+  </div>
+
+  <div class="detail-card" id="dcard-thunder">
+    <div class="dc-head">
+      <span class="dc-name">⛈ Thunderstorm Warning</span>
+      <span class="dc-badge dcb-none" id="dbadge-thunder">NONE</span>
+    </div>
+    <div class="dc-body" id="dbody-thunder">
+      <div class="dc-empty">No active thunderstorm warning.</div>
+    </div>
+  </div>
+
+  <div class="detail-card" id="dcard-special">
+    <div class="dc-head">
+      <span class="dc-name">📋 Special Forecast</span>
+      <span class="dc-badge dcb-none" id="dbadge-special">NONE</span>
+    </div>
+    <div class="dc-body" id="dbody-special">
+      <div class="dc-empty">No special forecast at this time.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <button class="btn-primary" id="btnOpen">Open PAGASA Website</button>
+  <button class="btn-ghost"   id="btnClear">Clear</button>
+</footer>
+
+<script src="popup-panel.js"></script>
+</body>
+</html>
